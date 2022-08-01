@@ -1,6 +1,4 @@
-catalog:
+catalog-app:
   catalogService:
     route:
       enabled: true
-  inventoryService:
-    name: inventory
