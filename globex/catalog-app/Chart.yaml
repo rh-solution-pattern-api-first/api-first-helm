@@ -1,6 +1,6 @@
 apiVersion: v2
-name: globex
-description: A Helm chart for Kubernetes
+name: catalog-app
+description: A Helm chart for the deployment of the Globex Catalog application
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -22,11 +22,3 @@ version: 0.1.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "1.0.0"
-
-dependencies:
-  - name: inventory-app
-    version: 0.1.0
-    repository: file://inventory-app
-  - name: catalog-app
-    version: 0.1.0
-    repository: file://catalog-app

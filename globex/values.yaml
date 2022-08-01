@@ -1,0 +1,6 @@
+catalog:
+  catalogService:
+    route:
+      enabled: true
+  inventoryService:
+    name: inventory
