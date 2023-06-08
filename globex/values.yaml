@@ -2,3 +2,6 @@ catalog-app:
   catalogService:
     route:
       enabled: true
+
+kafka:
+  enabled: true
