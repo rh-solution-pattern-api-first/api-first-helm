@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "recommendation-engine.labels" . | nindent 4 }}
     app.openshift.io/runtime: quarkus
+    service-binding/type: kafka
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
