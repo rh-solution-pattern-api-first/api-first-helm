@@ -11,9 +11,6 @@ dependencies:
   - name: catalog-app
     version: 0.1.0
     repository: file://catalog-app
-  - name: order-placement
-    version: 0.1.0
-    repository: file://order-placement
   - name: activity-tracking
     version: 0.1.0
     repository: file://activity-tracking
