@@ -1,0 +1,50 @@
+minio:
+  enabled: true
+  image: minio/minio:RELEASE.2020-12-29T23-29-29Z
+  accessKey:
+  secretKey:
+  region:
+  pvc:
+    storage: 1Gi
+    storageClass: gp3-csi
+  route:
+    tlsEnabled: true
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  resources:
+    limits:
+      cpu: 200m
+      memory: 250Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi    
+  argocd:
+    syncwave: "-5"
+
+s3Auth:
+  enabled: true
+
+smtp:
+  host: ""
+  authentication: ""
+  domain: ""
+  sslVerify: ""
+  password: ""
+  port: "0"
+  userId: ""
+
+system:
+  adminAccessToken:
+  adminPassword:
+  masterAccessToken:
+  masterPassword:
+  adminEmail: admin@email.com
+  adminUserId: admin
+  masterDomain: 3scale-master
+  masterUserId: master
+  tenantName: 3scale
+
+argocd:
+  enabled: true
+  syncwave: "-4"
