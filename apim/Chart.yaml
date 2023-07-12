@@ -5,6 +5,9 @@ type: application
 version: 0.1.0
 
 dependencies:
+  - name: microcks
+    version: 0.1.0
+    repository: file://microcks
   - name: threescale-tenant-secret
     version: 0.1.0
     repository: file://threescale-tenant-secret
