@@ -5,6 +5,9 @@ type: application
 version: 0.1.0
 
 dependencies:
+  - name: service-registry
+    version: 0.1.0
+    repository: file://service-registry
   - name: microcks
     version: 0.1.0
     repository: file://microcks

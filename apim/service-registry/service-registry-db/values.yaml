@@ -67,3 +67,6 @@ persistence:
 argocd:
   enabled: true
   syncwave: "-1"
+
+application:
+  name: service-registry
