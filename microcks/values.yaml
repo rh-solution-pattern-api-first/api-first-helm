@@ -1,0 +1,291 @@
+replicaCount: 1
+
+image:
+  repository: quay.io/microcks/microcks
+  pullPolicy: IfNotPresent
+  tag: "1.7.1"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podSecurityContext: 
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8080
+  containerPort: 8080
+  portName: http
+
+route:
+  enabled: true
+  host:
+  tlsEnabled: true
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+resources:
+  requests:
+    cpu: 200m
+    # memory: 400Mi
+  limits:
+    # cpu: 500m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: "/api/health"
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 25
+  timeoutSeconds: 3
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+readinessProbe:
+  httpGet:
+    path: "/api/health"
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 35
+  timeoutSeconds: 3
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+startupProbe:
+  httpGet:
+    path: "/api/health"
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 10
+  timeoutSeconds: 3
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 10
+
+logLevel: INFO
+
+features:
+  async:
+    enabled: false
+    defaultBinding: KAFKA
+    defaultFrequency: 10
+    defaultAvroEncoding: RAW
+    
+    image: quay.io/microcks/microcks-async-minion:1.7.1
+
+    kafka:
+      install: true
+      url: 192.168.99.100.nip.io
+      #url: kafka-bootstrap:9092
+      # Set this to your own class name if not using bare nginx
+      ingressClassName: nginx
+      persistent: false
+      volumeSize: 2Gi
+      resources:
+        #requests:
+          #cpu: 100m
+          #memory: 256Mi
+        limits:
+          #cpu: 500m
+          memory: 800Mi
+      zkResources:
+        #requests:
+          #cpu: 100m
+          #memory: 256Mi
+        limits:
+          #cpu: 500m
+          memory: 800Mi
+      schemaRegistry:
+        #url: http://schema-registry.192.168.99.100.nip.io
+        confluent: true
+        username: microcks
+        credentialsSource: USER_INFO
+
+      # If you choose not to install a Kafka broker and reuse on pre-existing,
+      # you may need to set some authentication parameters.
+      authentication:
+        # If not 'none', we support 'SSL' for mutual TLS and 'SASL_SSL' for SASL over TLS.
+        type: none #SSL #SASL_SSL
+        # For TLS transport, you'll always need a truststore to hold your cluster certificate.
+        # You have to setup a truststore type and a secret reference for retrieving content and password.
+        #truststoreType: PKCS12
+        #truststoreSecretRef:
+          #secret: kafka-cluster-ca-cert
+          #storeKey: ca.p12
+          #passwordKey: ca.password
+        # For mutual TLS authentication, you'll also need a keystore to hold your user private key.
+        # You have to setup a keystore type and a secret reference for retrieving content and password.
+        keystoreType: PKCS12
+        keystoreSecretRef:
+          secret: mtls-user
+          storeKey: user.p12
+          passwordKey: user.password
+        # For SASL authentication, you'll have to specify an additional authentication mechanism
+        # as well as a JAAS configuration line with login module, username and password.
+        #saslMechanism: SCRAM-SHA-512
+        #saslJaasConfig: org.apache.kafka.common.security.scram.ScramLoginModule required username="scram-user" password="tDtDCT3pYKE5";
+
+    # Uncomment the mqtt.url and put a valid endpoint address below to enable MQTT support.
+    mqtt:
+      #url: artemis:1883
+      username: microcks
+      password: microcks
+
+    # Uncomment the amqp.url and put a valid endpoint address below to enable AMQP support.
+    amqp:
+      #url: rabbitmq:5672
+      username: microcks
+      password: microcks
+
+    # Uncomment the nats.url and put a valid endpoint address below to enable NATS support.
+    nats:
+      #url: nats:4222
+      username: microcks
+      password: microcks
+
+    # Uncomment the googlepubsub.project and put a valid project id below to enable PubSub support.
+    googlepubsub:
+      #project: my-project
+      # For authentication, we rely on a Google Service Account JSON file.
+      # You have to setup a secret reference for retrieving this file from secret.
+      serviceAccountSecretRef:
+        secret: googlecloud-service-account
+        fileKey: googlecloud-service-account.json
+
+    # Uncomment the sqs.region and put a valid region below to enable Amazon SQS support.
+    sqs:
+      #region: eu-west-3
+      # For authentication, we rely on either Environment Variables or an AWS Profile of type credentials (see https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_profiles.html).
+      # You can choose between 'env-variable' and 'profile'
+      credentialsType: env-variable
+      #credentialsType: profile
+      # For 'env-variable', you may want to specify a Secret to get environment variables from.
+      #credentialsSecretRef:
+        #secret: aws-credentials
+        #accessKeyIdKey: access_key_id
+        #secretAccessKeyKey: secret_access_key
+        #sessionTokenKey: session_token
+      # For 'profile', you have to provide the profile name and setup a secret reference for retrieving this file from secret.
+      credentialsProfile: microcks-sqs-admin
+      #credentialsSecretRef:
+        #secret: aws-credentials
+        #fileKey: aws.profile
+
+    # Uncomment the sns.region and put a valid region below to enable Amazon SNS support.
+    sns:
+      #region: eu-west-3
+      # For authentication, we rely on either Environment Variables or an AWS Profile of type credentials (see https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_profiles.html).
+      # You can choose between 'env-variable' and 'profile'
+      credentialsType: env-variable
+      #credentialsType: profile
+      # For 'env-variable', you may want to specify a Secret to get environment variables from.
+      #credentialsSecretRef:
+        #secret: aws-credentials
+        #accessKeyIdKey: access_key_id
+        #secretAccessKeyKey: secret_access_key
+        #sessionTokenKey: session_token
+      # For 'profile', you have to provide the profile name and setup a secret reference for retrieving this file from secret.
+      credentialsProfile: microcks-sns-admin
+      #credentialsSecretRef:
+        #secret: aws-credentials
+        #fileKey: aws.profile
+
+    ws:
+      #ingressSecretRef: my-secret-for-microcks-ws-ingress
+      #ingressAnnotations:
+        #cert-manager.io/issuer: my-ws-cert-issuer
+        #kubernetes.io/tls-acme: "true"
+        #kubernetes.io/ingress.class: nginx
+      generateCert: true
+
+  repositoryFilter:
+    enabled: false
+    labelKey: app
+    labelLabel: Application
+    labelList: app,status
+
+  repositoryTenancy:
+    enabled: false
+    artifactImportAllowedRoles: admin,manager,manager-any
+
+  microcksHub:
+    enabled: false
+    allowedRoles: admin,manager,manager-any
+
+
+keycloak:
+  enabled: false
+
+mongodb:
+
+  image:
+    repository: centos/mongodb-34-centos7
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 27017
+    containerPort: 27017
+    portName: mongo
+
+  resources:
+    #requests:
+      #cpu: 250m
+      #memory: 400Mi
+    limits:
+      #cpu: 500m
+      memory: 512Mi
+
+  readinessProbe:
+    timeoutSeconds: 1
+    initialDelaySeconds: 3
+    exec:
+      command:
+      - "/bin/sh"
+      - "-i"
+      - "-c"
+      - mongo 127.0.0.1:27017/$MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD
+        --eval="quit()"
+
+  livenessProbe:
+    timeoutSeconds: 1
+    initialDelaySeconds: 30
+    tcpSocket:
+      port: 27017
+
+  podSecurityContext: 
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+  persistent: false
+  volumeSize: 2Gi
+
+  username: microcks
+  password: microcks
+
+  uri: ""
+
+

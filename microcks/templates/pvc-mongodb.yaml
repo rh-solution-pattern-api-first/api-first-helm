@@ -1,0 +1,17 @@
+{{- if .Values.mongodb.persistent -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "microcks.name" . }}
+  labels:
+    {{- include "microcks.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mongodb.volumeSize }}
+  {{- if hasKey .Values.mongodb "storageClassName" }}
+  storageClassName: {{ .Values.mongodb.storageClassName }}
+  {{- end }}
+{{- end }}
