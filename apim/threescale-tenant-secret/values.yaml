@@ -20,3 +20,5 @@ securityContext:
 
 threescale:
   namespace: 3scale
+  rolebinding:
+    name: threescale-tenant-secret-user

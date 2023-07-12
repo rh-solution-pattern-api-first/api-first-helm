@@ -6,9 +6,6 @@ tenant:
   adminPassword:
   organizationName:
 
-rolebinding:
-  serviceAccountNamespace: ""
-
 system:
   masterDomain:
 
