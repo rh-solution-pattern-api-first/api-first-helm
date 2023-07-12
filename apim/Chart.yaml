@@ -8,3 +8,6 @@ dependencies:
   - name: threescale-tenant-secret
     version: 0.1.0
     repository: file://threescale-tenant-secret
+  - name: globex-mobile
+    version: 0.1.0
+    repository: file://globex-mobile
