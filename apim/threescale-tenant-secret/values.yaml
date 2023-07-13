@@ -1,7 +1,7 @@
 image:
   repository: quay.io/cloud-architecture-workshop/threescale-tenant-secret-job
   pullPolicy: IfNotPresent
-  tag: "31ffa10-native"
+  tag: "6926a37-native"
 
 serviceAccount:
   create: true
