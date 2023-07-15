@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "microcks.name" . }}-mongodb
+  labels:
+    {{- include "microcks.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "microcks.mongodb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "microcks.mongodb.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "microcks.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.mongodb.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mongodb
+          securityContext:
+            {{- toYaml .Values.mongodb.securityContext | nindent 12 }}
+          image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+          imagePullPolicy: {{ .Values.mongodb.image.pullPolicy }}
+          ports:
+            - name: mongo
+              containerPort: {{ .Values.mongodb.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.mongodb.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.mongodb.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.mongodb.resources | nindent 12 }}
+          env:
+            - name: MONGODB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: "{{ include "microcks.name" . }}-mongodb-connection"
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: "{{ include "microcks.name" . }}-mongodb-connection"
+            - name: MONGODB_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: adminPassword
+                  name: "{{ include "microcks.name" . }}-mongodb-connection"
+            - name: MONGODB_DATABASE
+              value: "{{ include "microcks.name" . }}"
+          volumeMounts:
+            - name: "{{ include "microcks.name" . }}-mongodb-data"
+              mountPath: "/var/lib/mongodb/data"
+      volumes:
+        - name: "{{ include "microcks.name" . }}-mongodb-data"
+          {{- if .Values.mongodb.persistent }}
+          persistentVolumeClaim:
+            claimName: "{{ include "microcks.name" . }}-mongodb"
+          {{- else }}
+          emptyDir:
+            medium: ''
+          {{- end }}

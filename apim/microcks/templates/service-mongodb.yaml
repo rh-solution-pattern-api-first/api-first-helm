@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "microcks.name" . }}-mongodb
+  labels:
+    {{- include "microcks.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.mongodb.service.type }}
+  ports:
+    - port: {{ .Values.mongodb.service.port }}
+      targetPort: {{ .Values.mongodb.service.containerPort }}
+      protocol: TCP
+      name: {{ .Values.mongodb.service.portName }}
+  selector:
+    {{- include "microcks.mongodb.selectorLabels" . | nindent 4 }}

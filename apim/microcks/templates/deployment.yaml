@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "microcks.name" . }}
+  labels:
+    {{- include "microcks.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "microcks.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "microcks.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "microcks.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: JAVA_OPTIONS
+              value: "-XX:+TieredCompilation -XX:TieredStopAtLevel=2"
+            - name: JAVA_MAJOR_VERSION
+              value: "11"
+            - name: KEYCLOAK_ENABLED
+              value: '{{ .Values.keycloak.enabled }}'
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://${SPRING_DATA_MONGODB_USER}:${SPRING_DATA_MONGODB_PASSWORD}@{{ include "microcks.mongodb.uri" . }}/${SPRING_DATA_MONGODB_DATABASE}{{ .Values.mongodb.uriParameters }}
+            - name: SPRING_DATA_MONGODB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: "{{ include "microcks.name" . }}-mongodb-connection"
+            - name: SPRING_DATA_MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: "{{ include "microcks.name" . }}-mongodb-connection"
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: {{ .Values.mongodb.database | default (include "microcks.name" .) }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}         
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: "{{ include "microcks.name" . }}-config"
+              mountPath: /deployments/config
+      volumes:
+        - name: "{{ include "microcks.name" . }}-config"
+          configMap:
+            name: "{{ include "microcks.name" . }}-config"
