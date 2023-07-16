@@ -285,6 +285,7 @@ mongodb:
 
   username: microcks
   password: microcks
+  adminPassword: ""
 
   uri: ""
 
