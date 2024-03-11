@@ -22,3 +22,5 @@ threescale:
   namespace: 3scale
   rolebinding:
     name: threescale-tenant-secret-user
+
+maxTimeToWait: "3600000"

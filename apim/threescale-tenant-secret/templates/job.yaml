@@ -22,6 +22,8 @@ spec:
           env:
             - name: THREESCALE_NAMESPACE
               value: {{ .Values.threescale.namespace }}
+            - name: MAX_TIME_TO_WAIT_MS
+              value: "{{ .Values.maxTimeToWait }}"
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
